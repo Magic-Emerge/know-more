@@ -140,3 +140,4 @@ langchain.readthedocs.io/
 
 
 *.code-workspace
+.vscode
