@@ -1,0 +1,13 @@
+openai
+fastapi
+black
+isort
+websockets
+pydantic
+langchain==0.0.132
+uvicorn
+jinja2
+faiss-cpu
+bs4
+unstructured
+libmagic
