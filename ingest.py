@@ -7,8 +7,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 
-os.environ["OPENAI_API_BASE"] = ""
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENAI_API_BASE"] = "http://35.185.244.17:8888/api/v1"
+os.environ["OPENAI_API_KEY"] = "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"
 
 
 def ingest_docs():
@@ -17,8 +17,9 @@ def ingest_docs():
     raw_documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter()
     documents = text_splitter.split_documents(raw_documents)
-    embeddings = OpenAIEmbeddings(
-    )
+
+    
+    embeddings = OpenAIEmbeddings()
     
 
     # 替换成es
