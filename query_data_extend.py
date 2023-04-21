@@ -11,7 +11,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.vectorstores.base import VectorStore, VectorStoreRetriever
 from langchain.schema import Document
 from typing import List
-from few_shot_prompts_template import ( FEW_SHOT_PROMPT_TEMPLATE )
+# from few_shot_prompts_template import ( FEW_SHOT_PROMPT_TEMPLATE )
 
 
 async def aget_relevant_documents(self, query: str) -> List[Document]:

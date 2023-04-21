@@ -10,6 +10,10 @@ from langchain.vectorstores.faiss import FAISS
 os.environ["OPENAI_API_BASE"] = "http://35.185.244.17:8888/api/v1"
 os.environ["OPENAI_API_KEY"] = "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"
 
+"""
+上传文件 -> 读取文件
+
+"""
 
 def ingest_docs():
     """Get documents from web pages."""
@@ -28,6 +32,9 @@ def ingest_docs():
     # Save vectorstore
     with open("vectorstore.pkl", "wb") as f:
         pickle.dump(vectorstore, f)
+
+    # 更新知识只转化的状态
+    # 状态
 
 
 if __name__ == "__main__":

@@ -28,10 +28,17 @@ def ingest_badcase_txt_2_milvus():
     )
     documents = text_splitter.split_documents(raw_documents)
     embeddings = OpenAIEmbeddings()
-    Milvus.from_documents(documents, embeddings,
-                                        connection_args=MILVUS_CONNECTION_ARGS,
-                                        collection_name=MILVUS_COLLECTION_NAME,
-                                        text_field=MILVUS_TEXT_FIELD)
+
+    if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=MILVUS_COLLECTION_NAME):
+        milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
+                                      collection_name=MILVUS_COLLECTION_NAME, text_field=MILVUS_TEXT_FIELD)
+        milvus.add_documents(documents)
+    else:
+        vectorstore = Milvus.from_documents(documents, embeddings,
+                                            connection_args=MILVUS_CONNECTION_ARGS,
+                                            collection_name=MILVUS_COLLECTION_NAME,
+                                            text_field=MILVUS_TEXT_FIELD)
+
 
 
 def ingest_docs_2_milvus():

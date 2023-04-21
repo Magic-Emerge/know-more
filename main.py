@@ -35,8 +35,9 @@ MILVUS_CONNECTION_ARGS = {
 MILVUS_COLLECTION_NAME = 'badcase_default'
 MILVUS_TEXT_FIELD = 'badcase_text_field_default'
 
-os.environ["OPENAI_API_BASE"] = ""
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENAI_API_BASE"] = "http://35.185.244.17:8888/api/v1"
+os.environ["OPENAI_API_KEY"] = "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"
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
