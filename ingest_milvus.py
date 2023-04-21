@@ -18,6 +18,45 @@ MILVUS_CONNECTION_ARGS = {
 MILVUS_COLLECTION_NAME = 'badcase_default'
 MILVUS_TEXT_FIELD = 'badcase_text_field_default'
 
+
+
+def ingest_pdf_2_milvus(
+        file_path: str,
+        collection_name: str,
+        text_field: str,
+        chunk_size=2000,
+        chunk_overlap=200,
+):
+    """
+    Get documents from pdf files.
+    :param file_path 文件路径
+    :param collection_name milvus collection
+    :param text_field milvus文本字段名称
+    :param chunk_size 文本切分大小，默认2000
+    :param chunk_overlap 切分重叠大小，默认200
+    """
+    loader = UnstructuredFileLoader(file_path)
+    raw_documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
+    documents = text_splitter.split_documents(raw_documents)
+    embeddings = OpenAIEmbeddings()
+    if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
+        milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
+                                      collection_name=collection_name, text_field=text_field)
+        milvus.add_documents(documents)
+    else:
+        vectorstore = Milvus.from_documents(documents, embeddings,
+                                            connection_args=MILVUS_CONNECTION_ARGS,
+                                            collection_name=collection_name,
+                                            text_field=text_field)
+
+
+
+
+
 def ingest_badcase_txt_2_milvus():
     """Get documents from web pages."""
     loader = UnstructuredHTMLLoader("./assets/templates/badcase.txt", encoding='UTF-8')
