@@ -4,10 +4,11 @@ black
 isort
 websockets
 pydantic
-langchain==0.0.132
+langchain==0.0.147
 uvicorn
 jinja2
 faiss-cpu
 bs4
 unstructured
 libmagic
+rich~=13.3.2

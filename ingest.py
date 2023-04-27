@@ -7,7 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 
-os.environ["OPENAI_API_BASE"] = "http://35.185.244.17:8888/api/v1"
+os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
 os.environ["OPENAI_API_KEY"] = "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"
 
 """

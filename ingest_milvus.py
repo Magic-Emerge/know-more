@@ -8,8 +8,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from milvus import Milvus
 
-os.environ["OPENAI_API_BASE"] = ""
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
+os.environ["OPENAI_API_KEY"] = "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"
+
 
 MILVUS_CONNECTION_ARGS = {
     "host": "10.39.201.210",
