@@ -26,7 +26,13 @@ from langchain.chains.qa_with_sources.map_reduce_prompt import (
 from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
 from query_data_extend import get_chain
 from schemas import ChatResponse
+import os
+from dotenv import load_dotenv
+from __future__ import annotations
+import asyncio
+from memphis import Memphis, Headers, MemphisError, MemphisConnectError, MemphisHeaderError, MemphisSchemaError
 
+load_dotenv()  # loads the environment variables from .env file
 
 MILVUS_CONNECTION_ARGS = {
     "host": "10.39.201.210",
@@ -35,36 +41,57 @@ MILVUS_CONNECTION_ARGS = {
 MILVUS_COLLECTION_NAME = 'badcase_default'
 MILVUS_TEXT_FIELD = 'badcase_text_field_default'
 
-os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
-os.environ["OPENAI_API_KEY"] = "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"
+OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+# os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
+# os.environ["OPENAI_API_KEY"] = "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"
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 vectorstore: Optional[VectorStore] = None
 
 
-@app.on_event("startup")
-async def startup_event():
-    logging.info("loading vectorstore")
-    if not Path("vectorstore.pkl").exists():
-        raise ValueError("vectorstore.pkl does not exist, please run ingest.py first")
-    with open("vectorstore.pkl", "rb") as f:
-        global vectorstore
-        vectorstore = pickle.load(f)
-
 # @app.on_event("startup")
 # async def startup_event():
-#     global vectorstore, retriever, qa_chain
+#     logging.info("loading vectorstore")
+#     if not Path("vectorstore.pkl").exists():
+#         raise ValueError("vectorstore.pkl does not exist, please run ingest.py first")
+#     with open("vectorstore.pkl", "rb") as f:
+#         global vectorstore
+#         vectorstore = pickle.load(f)
 
-#     embeddings = OpenAIEmbeddings()
-#     vs_db = Milvus.from_existing(
-#         embedding=embeddings,
-#         connection_args=MILVUS_CONNECTION_ARGS,
-#         collection_name=MILVUS_COLLECTION_NAME,
-#         text_field=MILVUS_TEXT_FIELD
-#     )
-#     vectorstore = vs_db
+
+async def listener_mq():
+    async def msg_handler(msgs, error, context):
+        try:
+            for msg in msgs:
+                print("message: ", msg.get_data())
+                await msg.ack()
+                headers = msg.get_headers()
+                if error:
+                    print(error)
+        except (MemphisError, MemphisConnectError, MemphisHeaderError) as e:
+            print(e)
+            return
+
+    try:
+        memphis = Memphis()
+        await memphis.connect(host="10.8.0.12", username="know_more", password="23l1df5sn")
+
+        consumer = await memphis.consumer(station_name="file_embeddings", consumer_name="file_embeddings_consumer",
+                                          consumer_group="file_embeddings_consumer_group")
+        consumer.set_context({"key": "value"})
+        consumer.consume(msg_handler)
+        # Keep your main thread alive so the consumer will keep receiving data
+        await asyncio.Event().wait()
+
+    except (MemphisError, MemphisConnectError) as e:
+        print(e)
+
+    finally:
+        await memphis.close()
+
 
 @app.get("/")
 async def get(request: Request):
@@ -115,5 +142,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
 if __name__ == "__main__":
     import uvicorn
-
+    # 监听mq
+    listener_mq()
     uvicorn.run(app, host="0.0.0.0", port=9000)

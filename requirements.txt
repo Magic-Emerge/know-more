@@ -12,3 +12,5 @@ bs4
 unstructured
 libmagic
 rich~=13.3.2
+python-dotenv==1.0.0
+memphis-py
