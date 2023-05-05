@@ -60,7 +60,7 @@ def ingest_pdf_2_milvus(
 
 def ingest_badcase_txt_2_milvus():
     """Get documents from web pages."""
-    loader = UnstructuredHTMLLoader("./assets/templates/badcase.txt", encoding='UTF-8')
+    loader = UnstructuredHTMLLoader("../../assets/templates/badcase.txt", encoding='UTF-8')
     raw_documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000,
