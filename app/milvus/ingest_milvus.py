@@ -15,8 +15,8 @@ MILVUS_CONNECTION_ARGS = {
     "port": os.getenv("MILVUS_PORT"),
 }
 
-MILVUS_COLLECTION_NAME = 'badcase_default'
-MILVUS_TEXT_FIELD = 'badcase_text_field_default'
+MILVUS_COLLECTION_NAME = 'know_more_txt'
+MILVUS_TEXT_FIELD = 'raw_text'
 
 
 def ingest_pdf_2_milvus(

@@ -6,7 +6,9 @@ from langchain.chains.llm import LLMChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import Document
-from langchain.vectorstores.base import VectorStore, VectorStoreRetriever
+from langchain.vectorstores.base import VectorStoreRetriever
+from app.vectors.get_vectors import get_vector_store
+from app.config.conf import DEFAULT_COLLECTION_NAME
 
 from app.prompts.prompts import CONDENSE_QUESTION_PROMPT, QA_PROMPT
 
@@ -19,9 +21,15 @@ VectorStoreRetriever.aget_relevant_documents = aget_relevant_documents
 
 
 def get_chain(
-        vectorstore: VectorStore, question_handler, stream_handler,
-        model_name: str = "gpt-3.5-turbo", temperature: int = 0
+        question_handler,
+        stream_handler,
+        collection_name: str = DEFAULT_COLLECTION_NAME,
+        model_name: str = "gpt-3.5-turbo", temperature: int = 0,
+        chain_type: str = "stuff", question_prompt: str = CONDENSE_QUESTION_PROMPT,
+        qa_prompt: str = QA_PROMPT
 ) -> ConversationalRetrievalChain:
+    vector_store = get_vector_store(collection_name=collection_name)
+
     manager = AsyncCallbackManager([])
     question_manager = AsyncCallbackManager([question_handler])
     stream_manager = AsyncCallbackManager([stream_handler])
@@ -41,11 +49,11 @@ def get_chain(
         temperature=temperature
     )
 
-    question_generator = LLMChain(llm=question_gen_llm, prompt=CONDENSE_QUESTION_PROMPT, callback_manager=manager)
-    doc_chain = load_qa_chain(streaming_llm, chain_type="stuff", prompt=QA_PROMPT, callback_manager=manager)
+    question_generator = LLMChain(llm=question_gen_llm, prompt=question_prompt, callback_manager=manager)
+    doc_chain = load_qa_chain(streaming_llm, chain_type=chain_type, prompt=qa_prompt, callback_manager=manager)
 
     chain = ConversationalRetrievalChain(
-        retriever=vectorstore.as_retriever(),
+        retriever=vector_store.as_retriever(),
         question_generator=question_generator,
         combine_docs_chain=doc_chain,
 

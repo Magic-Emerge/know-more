@@ -60,21 +60,11 @@
     <script>
         var endpoint = "ws://localhost:9000/chat";
         var ws = new WebSocket(endpoint);
-        // 前端在onopen时传入初始化参数，比如需要查询的库和
-        ws.onopen = function (event) {
-            // Prepare your parameters as a string or JSON object
-            console.log('test')
-            const params = JSON.stringify({
-                name: 'zean',
-                age: '30'
-            });
-            // Send the parameters to the WebSocket server
-            ws.send(params);
-        }
         // Receive message from server word by word. Display the words as they are received.
         ws.onmessage = function (event) {
             var messages = document.getElementById('messages');
             var data = JSON.parse(event.data);
+
             if (data.sender === "bot") {
                 if (data.type === "start") {
                     var header = document.getElementById('header');
