@@ -4,7 +4,7 @@ black
 isort
 websockets
 pydantic
-langchain==0.0.147
+langchain==0.0.158
 uvicorn
 jinja2
 faiss-cpu
@@ -14,4 +14,6 @@ libmagic
 rich~=13.3.2
 python-dotenv==1.0.0
 memphis-py
-httpx==0.24.0
+pymilvus
+tiktoken
+sqlalchemy==2.0.12

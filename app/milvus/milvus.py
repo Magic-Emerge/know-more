@@ -104,6 +104,23 @@ class Milvus(VectorStore, ABC):
 
         return milvus
 
+    @classmethod
+    def exist_collection(cls, connection_args: dict, collection_name: str):
+        try:
+            from pymilvus import Collection, DataType, connections
+        except ImportError:
+            raise ValueError(
+                "Could not import pymilvus python package. "
+                "Please install it with `pip install pymilvus`."
+            )
+        # Connecting to Milvus instance
+        if not connections.has_connection("default"):
+            connections.connect(**connection_args)
+        conn = connections._fetch_handler('default')
+        if conn.has_collection(collection_name):
+            return True
+        return False
+
     def add_texts(
         self,
         texts: Iterable[str],

@@ -1,5 +1,6 @@
-
 import os
+import time
+
 from memphis import Memphis, Headers, MemphisError, MemphisConnectError, MemphisHeaderError, MemphisSchemaError
 
 
@@ -21,7 +22,9 @@ async def file_embeddings_mq():
         memphis = Memphis()
         await memphis.connect(host=os.getenv("MQ_HOST"), username="know_more", password="1qaz@WSX")
 
-        consumer = await memphis.consumer(station_name="file_embeddings", consumer_name="file_embeddings_consumer",
+        consumer_name = f"file_embeddings_consumer_{int(time.time() * 1000) // 1000}"
+
+        consumer = await memphis.consumer(station_name="file_embeddings", consumer_name=consumer_name,
                                           consumer_group="file_embeddings_consumer_group")
         # consumer.set_context({"key": "value"})
         consumer.consume(msg_handler)
@@ -30,4 +33,3 @@ async def file_embeddings_mq():
 
     finally:
         memphis.close()
-

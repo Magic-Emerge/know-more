@@ -1,24 +1,22 @@
 """Load html from files, clean up, split, ingest into Weaviate."""
-import pickle
 import os
 
 from langchain.document_loaders import ReadTheDocsLoader, UnstructuredFileLoader, TextLoader, UnstructuredHTMLLoader, \
     UnstructuredPDFLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from dotenv import load_dotenv
 from milvus import Milvus
 
-os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
-os.environ["OPENAI_API_KEY"] = "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"
-
+load_dotenv()  # loads the environment variables from .env file
 
 MILVUS_CONNECTION_ARGS = {
-    "host": "10.39.201.210",
-    "port": "30530",
+    "host": os.getenv("MILVUS_HOST"),
+    "port": os.getenv("MILVUS_PORT"),
 }
+
 MILVUS_COLLECTION_NAME = 'badcase_default'
 MILVUS_TEXT_FIELD = 'badcase_text_field_default'
-
 
 
 def ingest_pdf_2_milvus(
@@ -44,18 +42,15 @@ def ingest_pdf_2_milvus(
     )
     documents = text_splitter.split_documents(raw_documents)
     embeddings = OpenAIEmbeddings()
-    if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
+    if Milvus.exist_collection(collection_name=collection_name):
         milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
                                       collection_name=collection_name, text_field=text_field)
         milvus.add_documents(documents)
     else:
-        vectorstore = Milvus.from_documents(documents, embeddings,
-                                            connection_args=MILVUS_CONNECTION_ARGS,
-                                            collection_name=collection_name,
-                                            text_field=text_field)
-
-
-
+        Milvus.from_documents(documents, embeddings,
+                              connection_args=MILVUS_CONNECTION_ARGS,
+                              collection_name=collection_name,
+                              text_field=text_field)
 
 
 def ingest_badcase_txt_2_milvus():
@@ -67,7 +62,7 @@ def ingest_badcase_txt_2_milvus():
         chunk_overlap=200,
     )
     documents = text_splitter.split_documents(raw_documents)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
 
     if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=MILVUS_COLLECTION_NAME):
         milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
@@ -79,6 +74,8 @@ def ingest_badcase_txt_2_milvus():
                                             collection_name=MILVUS_COLLECTION_NAME,
                                             text_field=MILVUS_TEXT_FIELD)
 
+    # if milvus:
+    #     milvus.add_documents(documents)
 
 
 def ingest_docs_2_milvus():
@@ -110,7 +107,7 @@ def ingest_pdf_2_milvus():
         chunk_overlap=200,
     )
     documents = text_splitter.split_documents(raw_documents)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
     vectorstore = Milvus.from_documents(documents, embeddings,
                                         connection_args=MILVUS_CONNECTION_ARGS,
                                         collection_name=MILVUS_COLLECTION_NAME,
@@ -123,4 +120,3 @@ def ingest_pdf_2_milvus():
 
 if __name__ == "__main__":
     ingest_badcase_txt_2_milvus()
-

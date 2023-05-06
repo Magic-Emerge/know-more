@@ -6,11 +6,13 @@ from fastapi.templating import Jinja2Templates
 import threading
 
 from app.event.file_embeddings import file_embeddings_mq
+from app.vectors.query_data_extend import get_chain
 
 from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
-from schemas import ChatResponse
+from app.schema.chat_response_schema import ChatResponse
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()  # loads the environment variables from .env file
 
@@ -18,18 +20,15 @@ MILVUS_CONNECTION_ARGS = {
     "host": os.getenv("MILVUS_HOST"),
     "port": os.getenv("MILVUS_PORT"),
 }
+
 MILVUS_COLLECTION_NAME = 'badcase_default'
 MILVUS_TEXT_FIELD = 'badcase_text_field_default'
 
 OPENAI_API_BASE = os.getenv("OPENAI_API_BASE")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# os.environ["OPENAI_API_BASE"] = "http://10.8.0.12:8888/api/v1"
-# os.environ["OPENAI_API_KEY"] = "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"
-
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-
 
 
 @app.on_event("startup")
@@ -49,10 +48,16 @@ async def get(request: Request):
 @app.websocket("/chat")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    # data = await websocket.receive_text()
+    # # Parse the data as JSON
+    # params = json.loads(data)
+    # # Do something with the received parameters
+    # print("Received parameters:", params)
+
     question_handler = QuestionGenCallbackHandler(websocket)
     stream_handler = StreamingLLMCallbackHandler(websocket)
     chat_history = []
-    # qa_chain = get_chain(vectorstore, question_handler, stream_handler)
+    qa_chain = get_chain(vectorstore, question_handler, stream_handler)
     # Use the below line instead of the above line to enable tracing
     # Ensure `langchain-server` is running
     # qa_chain = get_chain(vectorstore, question_handler, stream_handler, tracing=True)

@@ -9,27 +9,32 @@
             width: 550px;
             margin: 50px auto;
         }
+
         .card-body {
             background-color: #333;
             color: #fff;
             border-radius: 10px;
         }
+
         .server-message {
             background-color: #444;
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
         }
+
         .client-message {
             background-color: #555;
             padding: 10px;
             margin: 10px;
             border-radius: 10px;
         }
+
         .form-inline {
             display: flex;
             justify-content: space-between;
         }
+
         .form-control {
             width: 80%;
             background-color: #333;
@@ -39,6 +44,7 @@
             padding: 10px;
             margin-right: 10px;
         }
+
         #send {
             background-color: #4C4CFF;
             color: #fff;
@@ -46,13 +52,25 @@
             border-radius: 5px;
             padding: 10px 20px;
         }
+
         .form-message {
-          margin-top: 10px;
+            margin-top: 10px;
         }
     </style>
     <script>
         var endpoint = "ws://localhost:9000/chat";
         var ws = new WebSocket(endpoint);
+        // 前端在onopen时传入初始化参数，比如需要查询的库和
+        ws.onopen = function (event) {
+            // Prepare your parameters as a string or JSON object
+            console.log('test')
+            const params = JSON.stringify({
+                name: 'zean',
+                age: '30'
+            });
+            // Send the parameters to the WebSocket server
+            ws.send(params);
+        }
         // Receive message from server word by word. Display the words as they are received.
         ws.onmessage = function (event) {
             var messages = document.getElementById('messages');
@@ -106,6 +124,7 @@
             // Scroll to the bottom of the chat
             messages.scrollTop = messages.scrollHeight;
         };
+
         // Send message to server
         function sendMessage(event) {
             event.preventDefault();
@@ -124,18 +143,18 @@
     </script>
 </head>
 <body class="bg-black">
-    <div class="chat-body card">
-        <div class="card-body p-5">
-            <h4 class="card-title text-center text-xl font-medium"> Chat Your Data </h4>
-            <p class="card-text text-center text-sm" id="header"> Ask a question </p>
-            <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
-            <div id="messages" class="overflow-auto" style="max-height: 500px;">
-            </div>
-            <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
-                <input type="text" class="form-control" placeholder="Write your question" id="messageText">
-                <button id="send" type="submit" class="btn btn-primary">Send</button>
-            </form>
+<div class="chat-body card">
+    <div class="card-body p-5">
+        <h4 class="card-title text-center text-xl font-medium"> Chat Your Data </h4>
+        <p class="card-text text-center text-sm" id="header"> Ask a question </p>
+        <hr class="border-gray-500 mb-5" style="margin-top: 20px;">
+        <div id="messages" class="overflow-auto" style="max-height: 500px;">
         </div>
+        <form action="" class="form-inline mt-5" id="chat-form" onsubmit="sendMessage(event)">
+            <input type="text" class="form-control" placeholder="Write your question" id="messageText">
+            <button id="send" type="submit" class="btn btn-primary">Send</button>
+        </form>
     </div>
+</div>
 </body>
 </html>

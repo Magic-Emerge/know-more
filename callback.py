@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from langchain.callbacks.base import AsyncCallbackHandler
 
-from schemas import ChatResponse
+from app.schema.chat_response_schema import ChatResponse
 
 
 class StreamingLLMCallbackHandler(AsyncCallbackHandler):
