@@ -20,18 +20,23 @@ async def msg_handler(msgs, error, context):
             logger.info("handler msg info [%s]", msg)
             json_dict = json.loads(msg)
             file_embed_event = FileEmbedEvent(**json_dict)
-            embed_result = qa_embeddings_files(file_name=file_embed_event.file_name,
-                                               file_type=file_embed_event.file_type,
-                                               url=file_embed_event.http_url,
-                                               collection_name=file_embed_event.biz_name,
-                                               text_field=DEFAULT_TEXT_FIELD
-                                               )
+            embed_result, reason = qa_embeddings_files(file_name=file_embed_event.file_name,
+                                                       file_type=file_embed_event.file_type,
+                                                       url=file_embed_event.http_url,
+                                                       collection_name=file_embed_event.biz_name,
+                                                       text_field=DEFAULT_TEXT_FIELD
+                                                       )
 
             if embed_result:
                 embed_notify = EmbedNotify(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FINISHED.value)
                 message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
                 await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
                 await msg.ack()
+            else:
+                embed_notify = EmbedNotify(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FAILED.value,
+                                           failed_reason=reason)
+                message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
+                await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
 
             # 获取headers
             # headers = msg.get_headers()

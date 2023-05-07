@@ -8,7 +8,7 @@ logger = get_logger()
 
 
 def qa_embeddings_files(file_name: str, file_type: str, collection_name: str, text_field: str,
-                              url: str = ""):
+                        url: str = ""):
     try:
         # 判断文件类型
         allow_types = [_type.value for _type in EmbeddingFileType]
@@ -62,5 +62,6 @@ def qa_embeddings_files(file_name: str, file_type: str, collection_name: str, te
         logger.info("embedding success：file_name[%s] or http url: [%s]", file_name, url)
     except Exception as e:
         logger.error("embedding failed：%s", str(e))
-        raise RuntimeError(f"embedding failed：{str(e)}")
+        return False, str(e)
+
     return True

@@ -1,3 +1,4 @@
+from typing import Optional
 
 from pydantic import BaseModel, validator
 
@@ -33,6 +34,7 @@ class EmbedNotify(BaseModel):
     """
     biz_id: int
     status: str
+    failed_reason: Optional[str] = None
 
     @classmethod
     @validator("status")
@@ -46,5 +48,6 @@ class EmbedNotify(BaseModel):
     def embed_notify_to_dict(cls):
         return {
             'biz_id': cls.biz_id,
-            'status': cls.status
+            'status': cls.status,
+            'failed_reason': cls.failed_reason
         }
