@@ -11,8 +11,8 @@ def upload_object(file_name: str, content: str) -> oss2.models.PutObjectResult:
     return bucket.put_object(file_name, content)
 
 
-def download_object(file_name: str):
-    return bucket.get_object(file_name).read()
+def download_object(file_name: str) -> str:
+    return bucket.get_object(file_name).read().decode('utf-8')
 
 
 # if __name__ == '__main__':
