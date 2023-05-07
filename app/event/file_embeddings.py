@@ -10,6 +10,8 @@ from app.serv.qa_embeddings import qa_embeddings_files
 from app.config.conf import DEFAULT_TEXT_FIELD, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME
 from app.client.mq_client import send_message
 from app.enums.notify_status_types import NotifyStatusType
+import asyncio
+
 
 logger = get_logger()
 
@@ -17,7 +19,7 @@ logger = get_logger()
 def notify_msg(biz_id: int, status: str):
     embed_notify = EmbedNotify(biz_id=biz_id, status=status)
     message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
-    await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
+    asyncio.run(send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME))
 
 
 async def msg_handler(msgs, error, context):

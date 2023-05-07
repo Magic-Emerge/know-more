@@ -12,11 +12,6 @@ qa_router = router = APIRouter()
 
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    # data = await websocket.receive_text()
-    # # Parse the data as JSON
-    # params = json.loads(data)
-    # # Do something with the received parameters
-    # print("Received parameters:", params)
 
     question_handler = QuestionGenCallbackHandler(websocket)
     stream_handler = StreamingLLMCallbackHandler(websocket)

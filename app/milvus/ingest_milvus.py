@@ -7,7 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from app.config.conf import MILVUS_CONNECTION_ARGS
-from milvus import Milvus
+from app.milvus.milvus import Milvus
 
 
 def ingest_docx_2_milvus(
