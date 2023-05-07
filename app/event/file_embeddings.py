@@ -14,12 +14,22 @@ from app.enums.notify_status_types import NotifyStatusType
 logger = get_logger()
 
 
+def notify_msg(biz_id: int, status: str):
+    embed_notify = EmbedNotify(biz_id=biz_id, status=status)
+    message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
+    await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
+
+
 async def msg_handler(msgs, error, context):
     try:
         for msg in msgs:
             logger.info("handler msg info [%s]", msg)
             json_dict = json.loads(msg)
             file_embed_event = FileEmbedEvent(**json_dict)
+
+            # 开始embedding
+            notify_msg(biz_id=file_embed_event.biz_id, status=NotifyStatusType.RUNNING.value)
+
             embed_result, reason = qa_embeddings_files(file_name=file_embed_event.file_name,
                                                        file_type=file_embed_event.file_type,
                                                        url=file_embed_event.http_url,
@@ -28,15 +38,10 @@ async def msg_handler(msgs, error, context):
                                                        )
 
             if embed_result:
-                embed_notify = EmbedNotify(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FINISHED.value)
-                message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
-                await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
+                notify_msg(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FINISHED.value)
                 await msg.ack()
             else:
-                embed_notify = EmbedNotify(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FAILED.value,
-                                           failed_reason=reason)
-                message_str = json.dumps(embed_notify, default=embed_notify.embed_notify_to_dict())
-                await send_message(message_str, EMBED_FINISH_NOTIFY_STATION, EMBED_FINISH_NOTIFY_PRODUCER_NAME)
+                notify_msg(biz_id=file_embed_event.biz_id, status=NotifyStatusType.FAILED.value)
 
             # 获取headers
             # headers = msg.get_headers()
