@@ -21,3 +21,9 @@ MQ_TOPIC = os.getenv("MQ_TOPIC")
 
 DEFAULT_COLLECTION_NAME = 'know_more_txt'
 DEFAULT_TEXT_FIELD = 'raw_text'
+
+
+OSS_ENDPOINT = os.getenv("OSS_ENDPOINT")
+ACCESSKEY_ID = os.getenv("ACCESSKEY_ID")
+ACCESSKEY_SECRET = os.getenv("ACCESSKEY_SECRET")
+BUCKET_NAME = os.getenv("BUCKET_NAME")

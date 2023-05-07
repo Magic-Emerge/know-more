@@ -17,3 +17,4 @@ memphis-py
 pymilvus
 tiktoken
 sqlalchemy==2.0.12
+oss2==2.17.0
