@@ -2,12 +2,40 @@
 from typing import List
 
 from langchain.document_loaders import ReadTheDocsLoader, UnstructuredFileLoader, TextLoader, \
-    UnstructuredPDFLoader, SeleniumURLLoader, UnstructuredHTMLLoader, UnstructuredWordDocumentLoader
+    UnstructuredPDFLoader, SeleniumURLLoader, UnstructuredHTMLLoader, \
+    UnstructuredWordDocumentLoader, UnstructuredMarkdownLoader
+
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from app.config.conf import MILVUS_CONNECTION_ARGS
 from app.milvus.milvus import Milvus
+
+
+def ingest_md_milvus(
+        file_path: str,
+        collection_name: str,
+        text_field: str,
+        chunk_size=2000,
+        chunk_overlap=200
+):
+    loader = UnstructuredMarkdownLoader(file_path)
+    raw_documents = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
+    documents = text_splitter.split_documents(raw_documents)
+    embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
+    if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
+        milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
+                                      collection_name=collection_name, text_field=text_field)
+        milvus.add_documents(documents)
+    else:
+        Milvus.from_documents(documents, embeddings,
+                              connection_args=MILVUS_CONNECTION_ARGS,
+                              collection_name=collection_name,
+                              text_field=text_field)
 
 
 def ingest_docx_2_milvus(

@@ -16,4 +16,5 @@ class EmbeddingFileType(Enum):
     HTML = "html"
     HTTP = "http"
     HTTPs = "https"
+    MD = "md"
 

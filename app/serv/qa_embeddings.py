@@ -59,6 +59,13 @@ def qa_embeddings_files(file_name: str, file_type: str, collection_name: str, te
                 urls=url_list
             )
 
+        elif EmbeddingFileType.MD.value == file_type:
+            ingest_milvus.ingest_md_milvus(
+                file_path=full_file_path,
+                collection_name=collection_name,
+                text_field=text_field
+            )
+
         logger.info("embedding success：file_name[%s] or http url: [%s]", file_name, url)
     except Exception as e:
         logger.error("embedding failed：%s", str(e))

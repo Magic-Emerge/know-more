@@ -1,6 +1,7 @@
 import os
 import time
 from app.config.logger import get_logger
+import socket
 
 from memphis import Memphis, MemphisError, MemphisConnectError, MemphisHeaderError
 import json
@@ -59,7 +60,9 @@ async def file_embeddings_mq():
         memphis = Memphis()
         await memphis.connect(host=os.getenv("MQ_HOST"), username="know_more", password="1qaz@WSX")
 
-        consumer_name = f"file_embeddings_consumer_{int(time.time() * 1000) // 1000}"
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname).replace(".", "")
+        consumer_name = f"file_embeddings_consumer_{ip_address}"
 
         consumer = await memphis.consumer(station_name="file_embeddings", consumer_name=consumer_name,
                                           consumer_group="file_embeddings_consumer_group")
