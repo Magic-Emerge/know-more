@@ -1,11 +1,11 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from app.schema.chat_response_schema import ChatResponse
 from app.serv.query_data import get_chain
-from callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
+from app.callback import QuestionGenCallbackHandler, StreamingLLMCallbackHandler
 
 qa_router = router = APIRouter()
 
