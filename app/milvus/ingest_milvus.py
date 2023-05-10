@@ -6,10 +6,11 @@ from langchain.document_loaders import ReadTheDocsLoader, UnstructuredFileLoader
     UnstructuredWordDocumentLoader, UnstructuredMarkdownLoader
 
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter, MarkdownTextSplitter
 
 from app.config.conf import MILVUS_CONNECTION_ARGS
 from app.milvus.milvus import Milvus
+
 
 
 def ingest_md_milvus(
@@ -21,7 +22,7 @@ def ingest_md_milvus(
 ):
     loader = UnstructuredMarkdownLoader(file_path)
     raw_documents = loader.load()
-    text_splitter = RecursiveCharacterTextSplitter(
+    text_splitter = MarkdownTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
     )
@@ -54,7 +55,7 @@ def ingest_docx_2_milvus(
     documents = text_splitter.split_documents(raw_documents)
     embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
     if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
-        milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
+        milvus = Milvus.from_texts(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
                                       collection_name=collection_name, text_field=text_field)
         milvus.add_documents(documents)
     else:
@@ -189,15 +190,16 @@ def ingest_docs_2_milvus(
         chunk_overlap=200,
 ):
     """Get documents from web pages."""
-    loader = UnstructuredHTMLLoader("../../files/html/廊坊热水器开通业务.html", encoding='UTF-8')
+    loader = UnstructuredHTMLLoader(file_path, encoding='UTF-8')
     raw_documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
     )
     documents = text_splitter.split_documents(raw_documents)
     embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
     vectorstore = Milvus.from_documents(documents, embeddings,
                                         connection_args=MILVUS_CONNECTION_ARGS,
-                                        collection_name=MILVUS_COLLECTION_NAME,
-                                        text_field=MILVUS_TEXT_FIELD)
+                                        collection_name=collection_name,
+                                        text_field=text_field)
+
