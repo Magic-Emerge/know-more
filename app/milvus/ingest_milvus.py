@@ -8,9 +8,8 @@ from langchain.document_loaders import ReadTheDocsLoader, UnstructuredFileLoader
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter, MarkdownTextSplitter
 
-from app.config.conf import MILVUS_CONNECTION_ARGS
+from app.config.conf import MILVUS_CONNECTION_ARGS, DEFAULT_COLLECTION_NAME, DEFAULT_TEXT_FIELD
 from app.milvus.milvus import Milvus
-
 
 
 def ingest_md_milvus(
@@ -56,7 +55,7 @@ def ingest_docx_2_milvus(
     embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
     if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
         milvus = Milvus.from_texts(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
-                                      collection_name=collection_name, text_field=text_field)
+                                   collection_name=collection_name, text_field=text_field)
         milvus.add_documents(documents)
     else:
         Milvus.from_documents(documents, embeddings,
@@ -82,7 +81,7 @@ def ingest_html_2_milvus(
     embeddings = OpenAIEmbeddings(openai_api_version="2020-11-07")
     if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
         milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
-                                      collection_name=collection_name, text_field=text_field)
+                                      collection_name=collection_name)
         milvus.add_documents(documents)
     else:
         Milvus.from_documents(documents, embeddings,
@@ -170,13 +169,12 @@ def ingest_txt_2_milvus(
 
     if Milvus.exist_collection(connection_args=MILVUS_CONNECTION_ARGS, collection_name=collection_name):
         milvus = Milvus.from_existing(embedding=embeddings, connection_args=MILVUS_CONNECTION_ARGS,
-                                      collection_name=collection_name, text_field=text_field)
+                                      collection_name=collection_name)
         milvus.add_documents(documents)
     else:
         Milvus.from_documents(documents, embeddings,
                               connection_args=MILVUS_CONNECTION_ARGS,
-                              collection_name=collection_name,
-                              text_field=text_field)
+                              collection_name=collection_name)
 
     # if milvus:
     #     milvus.add_documents(documents)
@@ -203,3 +201,7 @@ def ingest_docs_2_milvus(
                                         collection_name=collection_name,
                                         text_field=text_field)
 
+
+if __name__ == '__main__':
+    ingest_txt_2_milvus(file_path="../../assets/templates/badcase.txt", collection_name=DEFAULT_COLLECTION_NAME,
+                        text_field=DEFAULT_TEXT_FIELD)

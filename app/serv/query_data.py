@@ -6,8 +6,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.chains.llm import LLMChain
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
-from langchain.retrievers import ContextualCompressionRetriever
-from langchain.retrievers.document_compressors import LLMChainExtractor
+
 from langchain.schema import Document
 from langchain.vectorstores.base import VectorStoreRetriever
 from app.vectors.get_vectors import get_vector_store
@@ -55,12 +54,14 @@ def get_chain(
     question_generator = LLMChain(llm=question_gen_llm, prompt=question_prompt, callback_manager=manager)
     doc_chain = load_qa_chain(streaming_llm, chain_type=chain_type, prompt=qa_prompt, callback_manager=manager)
 
+    # llm = OpenAI(temperature=0)
     # 使用上下文压缩改进文档检索
-    compressor = LLMChainExtractor.from_llm(OpenAI(temperature=0))
-    compression_retriever = ContextualCompressionRetriever(base_compressor=compressor,
-                                                           base_retriever=vector_store.as_retriever())
+    # compressor = LLMChainExtractor.from_llm(llm)
+    retriever = vector_store.as_retriever()
+    # compression_retriever = ContextualCompressionRetriever(base_compressor=compressor,
+    #                                                        base_retriever=retriever)
     chain = ConversationalRetrievalChain(
-        retriever=compression_retriever,
+        retriever=retriever,
         question_generator=question_generator,
         combine_docs_chain=doc_chain,
 

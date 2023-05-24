@@ -11,14 +11,14 @@ from app.api.routes.assistant_qa import websocket_endpoint
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-
-@app.on_event("startup")
-async def startup_event():
-    # # 监听mq
-    # print("started memphis mq")
-    logging.info("async to start mq")
-    consumer_thread = threading.Thread(target=await file_embeddings_mq())
-    consumer_thread.start()
+#
+# @app.on_event("startup")
+# async def startup_event():
+#     # # 监听mq
+#     # print("started memphis mq")
+#     logging.info("async to start mq")
+#     consumer_thread = threading.Thread(target=await file_embeddings_mq())
+#     consumer_thread.start()
 
 
 @app.get("/")
